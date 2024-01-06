@@ -19,9 +19,13 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	// USER handlers
 	e.POST("/users", handlers.CreateUserHandler)
 	e.GET("/users/:id", handlers.GetUserHandler)
 	e.DELETE("/users/:id", handlers.DeleteUserHandler)
+
+	// EVENT handlers
+	e.POST("/events", handlers.CreateEventHandler)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

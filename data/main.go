@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+	"github.com/lib/pq"
 	"github.com/vicolby/meets/db"
 	"gorm.io/gorm"
 	"time"
@@ -21,8 +22,9 @@ type Event struct {
 	UpdatedAt    time.Time
 	DeletedAt    gorm.DeletedAt `gorm:"index"`
 	Name         string
-	OwnerID      int32
-	Participants []int32 `gorm:"type:int[]"`
+	OwnerID      uint
+	Owner        User
+	Participants pq.Int64Array `gorm:"type:int[]"`
 }
 
 func CreateUser(newUser *User) error {
@@ -52,5 +54,18 @@ func DeleteUser(id uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
+	return nil
+}
+
+func CreateEvent(newEvent *Event) error {
+	newEvent.CreatedAt = time.Now()
+
+	result := db.DB.Preload("Owner").Create(newEvent)
+
+	if result.Error != nil {
+		fmt.Println(result.Error)
+		return result.Error
+	}
+
 	return nil
 }

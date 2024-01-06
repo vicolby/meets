@@ -8,7 +8,6 @@ import (
 )
 
 func CreateUserHandler(c echo.Context) error {
-	// Parse request data
 	var newUser data.User
 	if err := c.Bind(&newUser); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
@@ -56,4 +55,25 @@ func DeleteUserHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "User deleted")
+}
+
+func CreateEventHandler(c echo.Context) error {
+	var newEvent data.Event
+	if err := c.Bind(&newEvent); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
+	}
+
+	user, err := data.GetUser(newEvent.OwnerID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid OwnerID"})
+	}
+
+	newEvent.Owner = *user
+
+	err = data.CreateEvent(&newEvent)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to create event"})
+	}
+
+	return c.JSON(http.StatusCreated, newEvent)
 }
