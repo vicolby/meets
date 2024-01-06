@@ -20,6 +20,8 @@ func main() {
 	e.Use(middleware.Recover())
 
 	e.POST("/users", handlers.CreateUserHandler)
+	e.GET("/users/:id", handlers.GetUserHandler)
+	e.DELETE("/users/:id", handlers.DeleteUserHandler)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

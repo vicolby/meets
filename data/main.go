@@ -26,8 +26,6 @@ type Event struct {
 }
 
 func CreateUser(newUser *User) error {
-
-	db.InitDB()
 	newUser.CreatedAt = time.Now()
 
 	result := db.DB.Create(newUser)
@@ -37,5 +35,22 @@ func CreateUser(newUser *User) error {
 		return result.Error
 	}
 
+	return nil
+}
+
+func GetUser(id uint) (*User, error) {
+	var user User
+	result := db.DB.First(&user, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func DeleteUser(id uint) error {
+	result := db.DB.Delete(&User{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
 	return nil
 }
