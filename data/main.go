@@ -69,3 +69,11 @@ func CreateEvent(newEvent *Event) error {
 
 	return nil
 }
+
+func DeleteEvent(id uint) error {
+	result := db.DB.Delete(&Event{}, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

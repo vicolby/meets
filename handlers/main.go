@@ -59,6 +59,7 @@ func DeleteUserHandler(c echo.Context) error {
 
 func CreateEventHandler(c echo.Context) error {
 	var newEvent data.Event
+
 	if err := c.Bind(&newEvent); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid request payload"})
 	}
@@ -76,4 +77,20 @@ func CreateEventHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, newEvent)
+}
+
+func DeleteEventHandler(c echo.Context) error {
+	eventIDstr := c.Param("id")
+	eventID, err := strconv.ParseUint(eventIDstr, 10, 64)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid event ID"})
+	}
+
+	err = data.DeleteEvent(uint(eventID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Failed to delete event"})
+	}
+
+	return c.JSON(http.StatusOK, "Event deleted")
 }
