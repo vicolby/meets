@@ -25,7 +25,9 @@ func main() {
 	e.DELETE("/users/:id", handlers.DeleteUserHandler)
 
 	// EVENT handlers
+	e.GET("/events", handlers.GetAllEventsHandler)
 	e.POST("/events", handlers.CreateEventHandler)
+	e.PUT("/events/:id/name", handlers.UpdateEventNameHandler)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

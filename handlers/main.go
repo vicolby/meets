@@ -57,6 +57,15 @@ func DeleteUserHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, "User deleted")
 }
 
+func GetAllEventsHandler(c echo.Context) error {
+	events, err := data.GetEvents()
+	if err != nil {
+		return handleInternalServerError(c, "Failed to get events")
+	}
+
+	return c.JSON(http.StatusOK, events)
+}
+
 func CreateEventHandler(c echo.Context) error {
 	var newEvent data.Event
 
@@ -93,4 +102,27 @@ func DeleteEventHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "Event deleted")
+}
+
+func UpdateEventNameHandler(c echo.Context) error {
+	eventIDStr := c.Param("id")
+	eventID, err := strconv.ParseUint(eventIDStr, 10, 64)
+	if err != nil {
+		return handleBadRequest(c, "Invalid event ID")
+	}
+
+	var updateData struct {
+		Name string `json:"name"`
+	}
+
+	if err := c.Bind(&updateData); err != nil {
+		return handleBadRequest(c, "Invalid request payload")
+	}
+
+	err = data.UpdateEventName(uint(eventID), updateData.Name)
+	if err != nil {
+		return handleInternalServerError(c, "Failed to update event name")
+	}
+
+	return c.JSON(http.StatusOK, "Event name updated")
 }

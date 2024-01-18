@@ -57,13 +57,21 @@ func DeleteUser(id uint) error {
 	return nil
 }
 
+func GetEvents() ([]Event, error) {
+	var events []Event
+	result := db.DB.Find(&events)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return events, nil
+}
+
 func CreateEvent(newEvent *Event) error {
 	newEvent.CreatedAt = time.Now()
 
 	result := db.DB.Preload("Owner").Create(newEvent)
 
 	if result.Error != nil {
-		fmt.Println(result.Error)
 		return result.Error
 	}
 
@@ -75,5 +83,19 @@ func DeleteEvent(id uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
+	return nil
+}
+
+func UpdateEventName(eventID uint, newName string) error {
+	var existingEvent Event
+	if err := db.DB.First(&existingEvent, eventID).Error; err != nil {
+		return err
+	}
+	existingEvent.Name = newName
+
+	if err := db.DB.Save(&existingEvent).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
