@@ -37,6 +37,7 @@ func main() {
 		r.Get("/api/v1/events", handlers.GetEventsHandler)
 		r.Post("/api/v1/events", handlers.CreateEventHandler)
 		r.Delete("/api/v1/events", handlers.DeleteEventHandler)
+		r.Put("/api/v1/events", handlers.UpdateEventHandler)
 		r.Put("/api/v1/events/{eventID}/add_participants", handlers.AddEventParticipant)
 		r.Delete("/api/v1/events/{eventID}/delete_participant", handlers.DeleteEventParticipant)
 

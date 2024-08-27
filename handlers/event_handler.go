@@ -56,6 +56,23 @@ func GetEventsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
 }
 
+func UpdateEventHandler(w http.ResponseWriter, r *http.Request) {
+	var event *types.Event
+
+	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := db.UpdateEvent(event); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
 func AddEventParticipant(w http.ResponseWriter, r *http.Request) {
 	var addReq types.AddParticipantReq
 	eventParam := chi.URLParam(r, "eventID")

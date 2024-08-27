@@ -29,6 +29,24 @@ func GetEvents() ([]types.Event, error) {
 	return events, nil
 }
 
+func UpdateEvent(event *types.Event) error {
+	if event == nil {
+		return fmt.Errorf("event cannot be nil")
+	}
+
+	return db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&types.Event{}, event.ID).Error; err != nil {
+			return fmt.Errorf("failed to find event with ID %d: %w", event.ID, err)
+		}
+
+		if err := tx.Save(event).Error; err != nil {
+			return fmt.Errorf("failed to save event with ID %d: %w", event.ID, err)
+		}
+
+		return nil
+	})
+}
+
 func AddEventParticipant(eventID int, users []int64) error {
 	return db.Transaction(func(tx *gorm.DB) error {
 		var data types.Event
