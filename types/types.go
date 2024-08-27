@@ -41,3 +41,7 @@ type User struct {
 type AddParticipantReq struct {
 	UsersID []int64
 }
+
+type DeleteParticipantReq struct {
+	UserID int64
+}

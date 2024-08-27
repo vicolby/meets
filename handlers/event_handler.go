@@ -56,7 +56,7 @@ func GetEventsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
 }
 
-func AddEventsParticipant(w http.ResponseWriter, r *http.Request) {
+func AddEventParticipant(w http.ResponseWriter, r *http.Request) {
 	var addReq types.AddParticipantReq
 	eventParam := chi.URLParam(r, "eventID")
 	eventParamInt, _ := strconv.Atoi(eventParam)
@@ -67,6 +67,25 @@ func AddEventsParticipant(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.AddEventParticipant(eventParamInt, addReq.UsersID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteEventParticipant(w http.ResponseWriter, r *http.Request) {
+	var delReq types.DeleteParticipantReq
+	eventParam := chi.URLParam(r, "eventID")
+	eventParamInt, _ := strconv.Atoi(eventParam)
+
+	if err := json.NewDecoder(r.Body).Decode(&delReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := db.DeleteEventParticipant(eventParamInt, delReq.UserID); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
