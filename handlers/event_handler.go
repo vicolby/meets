@@ -3,7 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/vicolby/events/db"
 	"github.com/vicolby/events/types"
 )
@@ -52,4 +54,23 @@ func GetEventsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(events)
+}
+
+func AddEventsParticipant(w http.ResponseWriter, r *http.Request) {
+	var addReq types.AddParticipantReq
+	eventParam := chi.URLParam(r, "eventID")
+	eventParamInt, _ := strconv.Atoi(eventParam)
+
+	if err := json.NewDecoder(r.Body).Decode(&addReq); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := db.AddEventParticipant(eventParamInt, addReq.UsersID); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 }

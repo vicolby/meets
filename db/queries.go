@@ -1,6 +1,14 @@
 package db
 
-import "github.com/vicolby/events/types"
+import (
+	"fmt"
+
+	"github.com/vicolby/events/types"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+// ---------------Events------------------------
 
 func InsertEvent(event *types.Event) error {
 	result := db.Create(&event)
@@ -21,6 +29,37 @@ func GetEvents() ([]types.Event, error) {
 	return events, nil
 }
 
+func AddEventParticipant(eventID int, users []int64) error {
+	return db.Transaction(func(tx *gorm.DB) error {
+		var data types.Event
+
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&data, eventID).Error; err != nil {
+			return fmt.Errorf("failed to lock event with ID %d: %w", eventID, err)
+		}
+
+		participantSet := make(map[int64]struct{}, len(data.Participants))
+
+		for _, participant := range data.Participants {
+			participantSet[participant] = struct{}{}
+		}
+
+		for _, newParticipant := range users {
+			if _, ok := participantSet[newParticipant]; ok {
+				return fmt.Errorf("User %d is already a participant", newParticipant)
+			}
+			data.Participants = append(data.Participants, newParticipant)
+		}
+
+		if err := tx.Save(&data).Error; err != nil {
+			return fmt.Errorf("failed to save participants for event %d: %w", eventID, err)
+		}
+
+		return nil
+	})
+}
+
+// -----------------Locations----------------------
+
 func InsertLocation(location *types.Location) error {
 	result := db.Create(&location)
 	return result.Error
@@ -39,6 +78,8 @@ func GetLocations() ([]types.Location, error) {
 
 	return locations, nil
 }
+
+//-----------------------Users------------------------------
 
 func InsertUser(user *types.User) error {
 	result := db.Create(&user)

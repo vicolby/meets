@@ -33,14 +33,21 @@ func main() {
 
 	r.Group(func(r chi.Router) {
 		r.Use(handlers.EnsureValidToken())
-		r.Get("/api/v1/users", handlers.GetUsersHandler)
-	})
-	r.Post("/api/v1/users", handlers.CreateUserHandler)
-	r.Delete("/api/v1/users", handlers.DeleteUserHandler)
 
-	r.Get("/api/v1/locations", handlers.GetLocationsHandler)
-	r.Post("/api/v1/locations", handlers.CreateLocationHandler)
-	r.Delete("/api/v1/locations", handlers.DeleteLocationHandler)
+		r.Get("/api/v1/events", handlers.GetEventsHandler)
+		r.Post("/api/v1/events", handlers.CreateEventHandler)
+		r.Delete("/api/v1/events", handlers.DeleteEventHandler)
+		r.Put("/api/v1/events/{eventID}/add_participants", handlers.AddEventsParticipant)
+
+		r.Get("/api/v1/users", handlers.GetUsersHandler)
+		r.Post("/api/v1/users", handlers.CreateUserHandler)
+		r.Delete("/api/v1/users", handlers.DeleteUserHandler)
+
+		r.Get("/api/v1/locations", handlers.GetLocationsHandler)
+		r.Post("/api/v1/locations", handlers.CreateLocationHandler)
+		r.Delete("/api/v1/locations", handlers.DeleteLocationHandler)
+
+	})
 
 	slog.Info("Starting chi server on port 8080!")
 	http.ListenAndServe(":8080", r)

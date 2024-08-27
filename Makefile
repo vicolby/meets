@@ -16,7 +16,7 @@ reset:
 down: ## Database migration down
 	@go run cmd/migrate/main.go down
 
-up: ## Database migration down
+up: ## Database migration up
 	@go run cmd/migrate/main.go up
 
 migration: ## Migrations against the database

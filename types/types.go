@@ -3,18 +3,20 @@ package types
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
 type Event struct {
 	gorm.Model
-	Name        string
-	Description string
-	Date        time.Time
-	LocationID  int
-	Location    Location
-	OrganizerID int
-	Organizer   User
+	Name         string
+	Description  string
+	Date         time.Time
+	LocationID   int
+	Location     Location
+	OrganizerID  int
+	Organizer    User
+	Participants pq.Int64Array `gorm:"type:integer[]"`
 }
 
 type Location struct {
@@ -34,4 +36,8 @@ type User struct {
 	Phone      string
 	Password   string
 	RegDate    time.Time
+}
+
+type AddParticipantReq struct {
+	UsersID []int64
 }
