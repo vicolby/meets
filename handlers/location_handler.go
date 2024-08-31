@@ -16,7 +16,7 @@ func CreateLocationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.InsertLocation(&location); err != nil {
+	if err := db.Insert(&location); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -34,7 +34,7 @@ func DeleteLocationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.DeleteLocation(&location); err != nil {
+	if err := db.Delete(&location); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

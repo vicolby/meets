@@ -18,7 +18,7 @@ func CreateEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.InsertEvent(&event); err != nil {
+	if err := db.Insert(&event); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -36,7 +36,7 @@ func DeleteEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.DeleteEvent(&event); err != nil {
+	if err := db.Delete(&event); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
