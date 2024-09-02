@@ -34,6 +34,7 @@ type User struct {
 	SecondName string
 	Email      string
 	Phone      string
+	Rating     int
 	RegDate    time.Time
 }
 
