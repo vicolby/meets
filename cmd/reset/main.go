@@ -6,14 +6,14 @@ import (
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	"github.com/vicolby/events/db"
+	"github.com/vicolby/events/database"
 )
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
-	db, err := db.ConnectToPostgres()
+	db, err := database.ConnectToPostgres()
 	sqlDB, err := db.DB()
 
 	if err != nil {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/vicolby/events/db"
+	"github.com/vicolby/events/database"
 	"log"
 	"os"
 
@@ -15,20 +15,18 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
 	}
-	db, err := db.ConnectToPostgres()
+	db, err := database.ConnectToPostgres()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	sqlDB, err := db.DB()
 
-	// Create migration instance
 	driver, err := postgres.WithInstance(sqlDB, &postgres.Config{})
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Point to your migration files. Here we're using local files, but it could be other sources.
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://cmd/migrate/migrations", // source URL
 		"postgres",                      // database name
