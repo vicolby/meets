@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var db *gorm.DB
+var DB *gorm.DB
 
 func ConnectToPostgres() (*gorm.DB, error) {
 	host := os.Getenv("DB_HOST")
@@ -24,7 +24,7 @@ func ConnectToPostgres() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
 		host, user, password, dbname, port, sslmode, timezone)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 
@@ -32,7 +32,7 @@ func ConnectToPostgres() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	sqlDB, err := db.DB()
+	sqlDB, err := DB.DB()
 
 	if err != nil {
 		return nil, err
@@ -42,16 +42,14 @@ func ConnectToPostgres() (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(100)
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
-	return db, nil
+	return DB, nil
 }
 
 func Init() error {
-	newDB, err := ConnectToPostgres()
+	_, err := ConnectToPostgres()
 	if err != nil {
 		return err
 	}
-
-	db = newDB
 
 	return nil
 }

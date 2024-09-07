@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/vicolby/events/db"
+	"github.com/vicolby/events/database"
 	"github.com/vicolby/events/types"
 )
 
@@ -16,7 +16,7 @@ func CreateLocationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.Insert(&location); err != nil {
+	if err := database.Insert(&location); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -34,7 +34,7 @@ func DeleteLocationHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := db.Delete(&location); err != nil {
+	if err := database.Delete(&location); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -45,7 +45,7 @@ func DeleteLocationHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetLocationsHandler(w http.ResponseWriter, r *http.Request) {
-	locations, err := db.GetLocations()
+	locations, err := database.GetLocations()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

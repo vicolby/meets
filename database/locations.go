@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"github.com/vicolby/events/types"
@@ -6,7 +6,7 @@ import (
 
 func GetLocations() ([]types.Location, error) {
 	var locations []types.Location
-	if err := db.Find(&locations).Error; err != nil {
+	if err := DB.Find(&locations).Error; err != nil {
 		return locations, err
 	}
 

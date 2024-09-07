@@ -1,4 +1,4 @@
-package db
+package database
 
 import (
 	"github.com/vicolby/events/types"
@@ -6,7 +6,7 @@ import (
 
 func GetUsers() ([]types.User, error) {
 	var users []types.User
-	if err := db.Find(&users).Error; err != nil {
+	if err := DB.Find(&users).Error; err != nil {
 		return users, err
 	}
 
