@@ -11,7 +11,7 @@ pdown:
 	@docker-compose down
 
 reset:
-	@go run cmd/reset/main.go up
+	@go run cmd/reset/main.go
 
 down: ## Database migration down
 	@go run cmd/migrate/main.go down

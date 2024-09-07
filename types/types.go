@@ -3,7 +3,6 @@ package types
 import (
 	"time"
 
-	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +15,7 @@ type Event struct {
 	Location     Location
 	OrganizerID  int
 	Organizer    User
-	Participants pq.Int64Array `gorm:"type:integer[]"`
+	Participants []User `gorm:"many2many:participants;"`
 }
 
 type Location struct {
