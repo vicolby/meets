@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/vicolby/events/database"
 	"github.com/vicolby/events/handlers"
@@ -17,6 +18,7 @@ import (
 )
 
 var logger *zap.SugaredLogger
+var validate *validator.Validate
 
 func main() {
 	l, err := zap.NewProduction()
@@ -40,14 +42,18 @@ func main() {
 
 	logger.Info("Successfully connected to the database!")
 
+	validate = validator.New(validator.WithRequiredStructEnabled())
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.CleanPath)
 
-	r.Get("/api/v1/events", handlers.GetEventsHandler)
-	r.Post("/api/v1/events", handlers.CreateEventHandler)
-	r.Delete("/api/v1/events", handlers.DeleteEventHandler)
+	eventHandler := handlers.NewEventHandler(logger, validate)
+
+	r.Get("/api/v1/events", eventHandler.GetEvents)
+	r.Post("/api/v1/events", eventHandler.CreateEvent)
+	r.Delete("/api/v1/events", eventHandler.DeleteEvent)
 
 	// r.Group(func(r chi.Router) {
 	// 	r.Use(handlers.EnsureValidToken())

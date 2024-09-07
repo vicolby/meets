@@ -8,39 +8,39 @@ import (
 
 type Event struct {
 	gorm.Model
-	Name         string
+	Name         string `validate:"required"`
 	Description  string
-	Date         time.Time
-	LocationID   int
-	Location     Location
-	OrganizerID  int
-	Organizer    User
-	Participants []User `gorm:"many2many:participants;"`
+	Date         time.Time `validate:"required"`
+	LocationID   int       `validate:"required"`
+	Location     Location  `validate:"required"`
+	OrganizerID  int       `validate:"required"`
+	Organizer    User      `validate:"required"`
+	Participants []User    `gorm:"many2many:participants;"`
 }
 
 type Location struct {
 	gorm.Model
-	Address   string
-	Latitude  float32
-	Longitude float32
-	City      string
-	Country   string
+	Address   string  `validate:"required"`
+	Latitude  float32 `validate:"required"`
+	Longitude float32 `validate:"required"`
+	City      string  `validate:"required"`
+	Country   string  `validate:"required"`
 }
 
 type User struct {
 	gorm.Model
-	FirstName  string
+	FirstName  string `validate:"required"`
 	SecondName string
 	Email      string
-	Phone      string
+	Phone      string `validate:"required"`
 	Rating     int
-	RegDate    time.Time
+	RegDate    time.Time `validate:"required"`
 }
 
 type AddParticipantReq struct {
-	UsersID []int64
+	UsersID []int64 `validate:"required"`
 }
 
 type DeleteParticipantReq struct {
-	UserID int64
+	UserID int64 `validate:"required"`
 }
