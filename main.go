@@ -50,10 +50,20 @@ func main() {
 	r.Use(middleware.CleanPath)
 
 	eventHandler := handlers.NewEventHandler(logger, validate)
+	userHandler := handlers.NewUserHandler(logger, validate)
+	locationHandler := handlers.NewLocationHandler(logger, validate)
 
 	r.Get("/api/v1/events", eventHandler.GetEvents)
 	r.Post("/api/v1/events", eventHandler.CreateEvent)
 	r.Delete("/api/v1/events", eventHandler.DeleteEvent)
+
+	r.Get("/api/v1/users", userHandler.GetUsers)
+	r.Post("/api/v1/users", userHandler.CreateUser)
+	r.Delete("/api/v1/users", userHandler.DeleteUser)
+
+	r.Get("/api/v1/locations", locationHandler.GetLocations)
+	r.Post("/api/v1/locations", locationHandler.CreateLocation)
+	r.Delete("/api/v1/locations", locationHandler.DeleteLocation)
 
 	// r.Group(func(r chi.Router) {
 	// 	r.Use(handlers.EnsureValidToken())
