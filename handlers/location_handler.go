@@ -77,7 +77,8 @@ func (h *LocationHandler) DeleteLocation(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *LocationHandler) GetLocations(w http.ResponseWriter, r *http.Request) {
-	locations, err := database.GetLocations()
+	ctx := r.Context()
+	locations, err := database.GetLocations(ctx)
 	if err != nil {
 		h.Logger.Errorf("Failed to get locations: %v", err)
 		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get locations")
