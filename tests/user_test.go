@@ -11,6 +11,9 @@ import (
 )
 
 func TestGetUsers(t *testing.T) {
+	cleanupDatabase(t)
+	defer cleanupDatabase(t)
+
 	users := []types.User{
 		{
 			FirstName:  "Alice",
@@ -31,9 +34,21 @@ func TestGetUsers(t *testing.T) {
 	}
 
 	ctx := context.Background()
+	tx := database.DB.Begin()
 
-	if err := database.Insert(ctx, &users); err != nil {
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Create(&users).Error; err != nil {
+		tx.Rollback()
 		t.Fatalf("failed to seed database: %v", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		t.Fatalf("Failed to commit transaction: %v", err)
 	}
 
 	retrievedUsers, err := database.GetUsers(ctx)

@@ -10,6 +10,8 @@ import (
 )
 
 func TestGetLocations(t *testing.T) {
+	cleanupDatabase(t)
+	defer cleanupDatabase(t)
 	locations := []types.Location{
 		{
 			Address:   "Gogol 80",
@@ -28,9 +30,21 @@ func TestGetLocations(t *testing.T) {
 	}
 
 	ctx := context.Background()
+	tx := database.DB.Begin()
 
-	if err := database.Insert(ctx, &locations); err != nil {
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Create(&locations).Error; err != nil {
+		tx.Rollback()
 		t.Fatalf("Failed to seed database with locations: %v", err)
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		t.Fatalf("Failed to commit transaction: %v", err)
 	}
 
 	retrievedLocations, err := database.GetLocations(ctx)

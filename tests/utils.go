@@ -3,9 +3,12 @@ package tests
 import (
 	"context"
 	"fmt"
+	"log"
+	"testing"
+
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"log"
+	"github.com/vicolby/events/database"
 )
 
 func setupTestContainer() (string, func(), error) {
@@ -47,4 +50,10 @@ func setupTestContainer() (string, func(), error) {
 	}
 
 	return connString, terminate, nil
+}
+
+func cleanupDatabase(t *testing.T) {
+	if err := database.DB.Exec("TRUNCATE TABLE events, locations, users RESTART IDENTITY CASCADE").Error; err != nil {
+		t.Fatalf("Failed to truncate tables: %v", err)
+	}
 }
