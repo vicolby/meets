@@ -26,7 +26,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var user types.User
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		h.Logger.Errorf("Failed to decode request body: %v", err)
+		WriteErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
@@ -35,21 +36,24 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := database.Insert(&user); err != nil {
-		http.Error(w, "Failed to create user", http.StatusInternalServerError)
+	ctx := r.Context()
+
+	if err := database.Insert(ctx, &user); err != nil {
+		h.Logger.Errorf("Failed to insert user: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to create user")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	WriteJSONResponse(w, http.StatusCreated, user)
+
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	var user types.User
 
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		h.Logger.Errorf("Failed to decode request body: %v", err)
+		WriteErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
@@ -58,24 +62,27 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := database.Delete(&user); err != nil {
-		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+	ctx := r.Context()
+
+	if err := database.Delete(ctx, &user); err != nil {
+		h.Logger.Errorf("Failed to delete user: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to delete user")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	WriteJSONResponse(w, http.StatusOK, map[string]string{
 		"message": "User deleted successfully",
 	})
+
 }
 
 func (h *UserHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	users, err := database.GetUsers()
+	ctx := r.Context()
+	users, err := database.GetUsers(ctx)
 	if err != nil {
-		http.Error(w, "Failed to get users", http.StatusInternalServerError)
+		h.Logger.Errorf("Failed to get users: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get users")
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(users)
+
+	WriteJSONResponse(w, http.StatusOK, users)
 }

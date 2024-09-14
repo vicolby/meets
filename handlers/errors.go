@@ -22,3 +22,17 @@ func HandleValidationError(w http.ResponseWriter, err error) {
 		"errors":  errorsResponse,
 	})
 }
+
+func WriteErrorResponse(w http.ResponseWriter, statusCode int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
+}
+
+func WriteJSONResponse(w http.ResponseWriter, statusCode int, payload interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(payload); err != nil {
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to encode response")
+	}
+}

@@ -1,12 +1,14 @@
 package database
 
 import (
+	"context"
+
 	"github.com/vicolby/events/types"
 )
 
-func GetUsers() ([]types.User, error) {
+func GetUsers(ctx context.Context) ([]types.User, error) {
 	var users []types.User
-	if err := DB.Find(&users).Error; err != nil {
+	if err := DB.WithContext(ctx).Find(&users).Error; err != nil {
 		return users, err
 	}
 

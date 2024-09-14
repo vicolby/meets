@@ -26,60 +26,62 @@ func (h *LocationHandler) CreateLocation(w http.ResponseWriter, r *http.Request)
 	var location types.Location
 
 	if err := json.NewDecoder(r.Body).Decode(&location); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		h.Logger.Errorf("Failed to decode request body: %v", err)
+		WriteErrorResponse(w, http.StatusBadRequest, "Ivalid request payload")
 		return
 	}
 
 	if err := h.Validator.Struct(location); err != nil {
+		h.Logger.Errorf("Validation error: %v", err)
 		HandleValidationError(w, err)
 		return
 	}
 
-	if err := database.Insert(&location); err != nil {
-		http.Error(w, "Failed to create location", http.StatusInternalServerError)
+	ctx := r.Context()
+
+	if err := database.Insert(ctx, &location); err != nil {
+		h.Logger.Errorf("Failed to insert location: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to create location")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(location)
+	WriteJSONResponse(w, http.StatusCreated, location)
 }
 
 func (h *LocationHandler) DeleteLocation(w http.ResponseWriter, r *http.Request) {
 	var location types.Location
 
 	if err := json.NewDecoder(r.Body).Decode(&location); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		h.Logger.Errorf("Failed to decode request body: %v", err)
+		WriteErrorResponse(w, http.StatusBadRequest, "Ivalid request payload")
 		return
 	}
 
 	if err := h.Validator.Struct(location); err != nil {
+		h.Logger.Errorf("Validation error: %v", err)
 		HandleValidationError(w, err)
 		return
 	}
 
-	if err := database.Delete(&location); err != nil {
-		http.Error(w, "Failed to delete location", http.StatusInternalServerError)
+	ctx := r.Context()
+
+	if err := database.Delete(ctx, &location); err != nil {
+		h.Logger.Errorf("Failed to delete location: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to delete location")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	WriteJSONResponse(w, http.StatusOK, map[string]string{
 		"message": "Location deleted successfully",
 	})
-
 }
 
 func (h *LocationHandler) GetLocations(w http.ResponseWriter, r *http.Request) {
 	locations, err := database.GetLocations()
 	if err != nil {
-		http.Error(w, "Failed to get locations", http.StatusInternalServerError)
+		h.Logger.Errorf("Failed to get locations: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get locations")
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(locations); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-	}
+	WriteJSONResponse(w, http.StatusOK, locations)
 }

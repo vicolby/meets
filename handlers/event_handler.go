@@ -26,75 +26,82 @@ func (h *EventHandler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var event types.Event
 
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		h.Logger.Errorf("Ivalid request payload: %v", err)
+		WriteErrorResponse(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
 	if err := h.Validator.Struct(event); err != nil {
+		h.Logger.Errorf("Validation error: %v", err)
 		HandleValidationError(w, err)
 		return
 	}
 
-	if err := database.Insert(&event); err != nil {
-		http.Error(w, "Failed to create event", http.StatusInternalServerError)
+	ctx := r.Context()
+
+	if err := database.Insert(ctx, &event); err != nil {
+		h.Logger.Errorf("Failed to insert event: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to create event")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(event)
+	WriteJSONResponse(w, http.StatusCreated, event)
+
 }
 
 func (h *EventHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	var event types.Event
 
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		h.Logger.Errorf("Failed to decode request body: %v", err)
+		WriteErrorResponse(w, http.StatusBadRequest, "Ivalid request payload")
 		return
 	}
 
-	if err := database.Delete(&event); err != nil {
-		http.Error(w, "Failed to delete event", http.StatusInternalServerError)
+	ctx := r.Context()
+
+	if err := database.Delete(ctx, &event); err != nil {
+		h.Logger.Errorf("Failed to delete event: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to delete event")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	WriteJSONResponse(w, http.StatusOK, map[string]string{
 		"message": "Event deleted successfully",
 	})
 }
 
 func (h *EventHandler) GetEvents(w http.ResponseWriter, r *http.Request) {
-	events, err := database.GetEvents()
+	ctx := r.Context()
+	events, err := database.GetEvents(ctx)
 	if err != nil {
-		http.Error(w, "Failed to retrieve events", http.StatusInternalServerError)
+		h.Logger.Errorf("Failed to get events: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to get events")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(events); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-	}
+	WriteJSONResponse(w, http.StatusOK, events)
 }
 
 func (h *EventHandler) UpdateEvent(w http.ResponseWriter, r *http.Request) {
 	var event types.Event
 
 	if err := json.NewDecoder(r.Body).Decode(&event); err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		h.Logger.Errorf("Failed to decode request body: %v", err)
+		WriteErrorResponse(w, http.StatusBadRequest, "Ivalid request payload")
 		return
 	}
 
-	if err := database.UpdateEvent(&event); err != nil {
-		http.Error(w, "Failed to update event", http.StatusInternalServerError)
+	ctx := r.Context()
+
+	if err := database.UpdateEvent(ctx, &event); err != nil {
+		h.Logger.Errorf("Failed to update event: %v", err)
+		WriteErrorResponse(w, http.StatusInternalServerError, "Failed to update event")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	WriteJSONResponse(w, http.StatusOK, map[string]string{
 		"message": "Event updated successfully",
 	})
+
 }
